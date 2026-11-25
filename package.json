@@ -1,0 +1,46 @@
+{
+  "name": "asset_management",
+  "version": "1.0.0",
+  "description": "웹에서 거래·예산·자산·국내외 주식·카드 혜택을 관리하고, Galaxy S23+ Android 앱에서 은행·카드 앱의 결제 알림을 수집해 사용자가 검토하고 확정하는 개인용 프로젝트다.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint",
+    "db:verify": "node scripts/verify-local-backup.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/best01211/Asset_Management.git"
+  },
+  "dependencies": {
+    "@expo-google-fonts/noto-sans-kr": "0.4.4",
+    "@napi-rs/canvas": "1.2.0",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.119.2",
+    "@tesseract.js-data/eng": "1.0.0",
+    "@tesseract.js-data/kor": "1.0.0",
+    "fflate": "0.8.3",
+    "next": "16.4.6",
+    "pdfjs-dist": "6.5.438",
+    "pdfkit": "0.21.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sharp": "0.35.5",
+    "tesseract.js": "7.0.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.6.0",
+    "@electric-sql/pglite-tools": "0.5.0",
+    "@types/node": "26.6.7",
+    "@types/pdfkit": "0.17.7",
+    "@types/react": "19.3.1",
+    "@types/react-dom": "19.3.0",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.6",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
+  },
+  "private": true
+}

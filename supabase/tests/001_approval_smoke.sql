@@ -33,7 +33,8 @@ begin
  begin
    perform public.approve_pending_expense(pending,1,gen_random_uuid());
    raise exception 'EXPECTED_STALE_REJECTION';
- exception when sqlstate 'P0001' then null;
+ exception when sqlstate 'P0001' then
+   if sqlerrm <> 'STALE_OR_NOT_REVIEWABLE' then raise; end if;
  end;
  if (select count(*) from public.transactions where user_id=uid and source_pending_id=pending) <> 1
  then raise exception 'DUPLICATE_CONFIRMED_TRANSACTION'; end if;
@@ -42,4 +43,5 @@ begin
  raise notice 'PASS: unapproved exclusion, balanced ledger, replay, stale rejection, audit';
 end;
 $$;
+set constraints all immediate;
 rollback;

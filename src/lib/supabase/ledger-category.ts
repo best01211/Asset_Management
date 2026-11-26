@@ -34,18 +34,22 @@ export async function loadLedgerCategory(supabase: SupabaseClient, userId: strin
   const purchases = rows.filter((row) => ['purchase_cash', 'purchase_credit', 'purchase_debit'].includes(row[1])).map((row) => row[0])
   const refunds = rows.filter((row) => row[1] === 'purchase_refund')
   const fees = rows.filter((row) => row[1] === 'transfer_fee').map((row) => row[0])
+  const reporting = await supabase.from('reporting_purchase_categories').select('transaction_id').limit(0)
+  const splitTable = reporting.error ? 'transaction_splits' : 'reporting_purchase_categories'
+  const refundTable = reporting.error ? 'refund_allocations' : 'reporting_refund_categories'
+  const feeTable = reporting.error ? 'transfer_fees' : 'reporting_fee_categories'
   const [splits, reversed, refundAllocations, categoryFees] = await Promise.all([
     readByIds<Allocation>([...purchases, ...refunds.flatMap((row) => row[7] ? [row[7]] : [])], (ids) =>
-      supabase.from('transaction_splits').select('transaction_id,category_id,amount_minor::text')
+      supabase.from(splitTable).select('transaction_id,category_id,amount_minor::text')
         .eq('user_id', userId).eq('category_id', category).in('transaction_id', ids).returns<Allocation[]>()),
     readByIds<{ original_purchase_id: string }>(purchases, (ids) =>
       supabase.from('purchase_reversals').select('original_purchase_id').eq('user_id', userId).in('original_purchase_id', ids)),
     readByIds<Allocation>(refunds.map((row) => row[0]), async (ids) => {
-      const data = await readPages<Allocation>((start, end) => supabase.from('refund_allocations').select('transaction_id,category_id,amount_minor::text')
+      const data = await readPages<Allocation>((start, end) => supabase.from(refundTable).select('transaction_id,category_id,amount_minor::text')
         .eq('user_id', userId).in('transaction_id', ids).order('transaction_id').order('category_id').range(start, end).returns<Allocation[]>())
       return { data, error: null }
     }),
-    readByIds<Lookup>(fees, (ids) => supabase.from('transfer_fees').select('transaction_id')
+    readByIds<Lookup>(fees, (ids) => supabase.from(feeTable).select('transaction_id')
       .eq('user_id', userId).eq('category_id', category).in('transaction_id', ids)),
   ])
   if (!splits || !reversed || !refundAllocations || !categoryFees) return null

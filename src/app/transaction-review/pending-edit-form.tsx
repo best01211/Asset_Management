@@ -5,6 +5,8 @@ import type { FormEvent } from 'react'
 import { paymentLabels, paymentMethods } from '@/lib/transaction-review'
 import type { PaymentMethod, ReviewTransaction } from '@/lib/transaction-review'
 import type { PurchaseOptions } from '@/lib/supabase/purchase-options'
+import { useUnsavedDraft } from '../transactions/draft'
+import CategoryPicker from '../category-picker'
 
 function localDateTime(value: string) {
   const milliseconds = Date.parse(value)
@@ -22,11 +24,14 @@ export default function PendingEditForm({ row, saving, onSavingChange, onCancel,
   const [method, setMethod] = useState<PaymentMethod | ''>(row?.payment_method ?? '')
   const [accountId, setAccountId] = useState(row?.payment_account_id ?? '')
   const [categoryId, setCategoryId] = useState(row?.category_id ?? '')
-  const [suggested, setSuggested] = useState(false)
+  const [suggested, setSuggested] = useState('')
   const [originalTime] = useState(() => localDateTime(row?.occurred_at ?? new Date().toISOString()))
   const [message, setMessage] = useState('')
+  const [dirty, setDirty] = useState(false)
+  useUnsavedDraft(dirty)
   const manualRequest = useRef<{ fingerprint: string; id: string } | null>(null)
   const ruleRequest = useRef<AbortController | null>(null)
+  const categoryManuallySet = useRef(Boolean(row))
 
   useEffect(() => {
     const controller = new AbortController()
@@ -43,20 +48,20 @@ export default function PendingEditForm({ row, saving, onSavingChange, onCancel,
   const eligible = method ? options?.accounts.filter((account) => account.kind === (method === 'credit_card' ? 'liability' : 'asset')) ?? [] : []
 
   async function suggestCategory(merchant: string) {
-    if (row || !merchant.trim() || categoryId || !options) return
+    if (categoryManuallySet.current || !merchant.trim() || !options) return
     ruleRequest.current?.abort()
     const controller = new AbortController()
     ruleRequest.current = controller
     try {
       const response = await fetch('/api/category-rules', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
-        body: JSON.stringify({ action: 'match', merchant }),
+        body: JSON.stringify({ action: 'suggest', merchant }),
       })
       if (!response.ok) return
-      const { category_id } = await response.json()
-      if (!controller.signal.aborted && options.categories.some((item) => item.id === category_id)) {
+      const { category_id, source } = await response.json()
+      if (!controller.signal.aborted && !categoryManuallySet.current && options.categories.some((item) => item.id === category_id)) {
         setCategoryId(category_id)
-        setSuggested(true)
+        setSuggested(source)
       }
     } catch {
       // Category selection remains available when suggestions cannot be loaded.
@@ -122,12 +127,12 @@ export default function PendingEditForm({ row, saving, onSavingChange, onCancel,
 
   return (
     <>
-      {options && <form onSubmit={save}>
+      {options && <form onSubmit={save} onChange={() => setDirty(true)} data-unsaved={dirty} data-saving={saving}>
         <div className="fields">
           <label>가맹점<input name="merchant" defaultValue={row?.merchant} required maxLength={200} disabled={saving}
             onBlur={(event) => suggestCategory(event.target.value)} onChange={() => {
               ruleRequest.current?.abort()
-              if (suggested) { setCategoryId(''); setSuggested(false) }
+            if (suggested) { setCategoryId(''); setSuggested('') }
             }} /></label>
           <label>금액 (원)<input name="amount_minor" inputMode="numeric" pattern="[1-9][0-9]{0,18}"
             defaultValue={row?.amount_minor} required disabled={saving} /></label>
@@ -142,17 +147,18 @@ export default function PendingEditForm({ row, saving, onSavingChange, onCancel,
             <option value="">계좌 선택</option>
             {eligible.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
           </select></label>
-          <label>카테고리<select name="category" value={options.categories.some((item) => item.id === categoryId) ? categoryId : ''}
-            required disabled={saving} onChange={(event) => {
+          <CategoryPicker name="category" items={[...options.categories, ...(options.archivedCategories ?? [])]}
+            value={categoryId || options.categories.find((item) => item.system_key === 'other/1')?.id || ''}
+            required disabled={saving} onChange={(next) => {
               ruleRequest.current?.abort()
-              setCategoryId(event.target.value)
-              setSuggested(false)
-            }}>
-            <option value="">카테고리 선택</option>
-            {options.categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-          </select></label>
+              categoryManuallySet.current = Boolean(next)
+              setCategoryId(next)
+              setSuggested('')
+            }} />
         </div>
-        {suggested && <p>가맹점 분류 규칙이 적용되었습니다.</p>}
+        {suggested === 'merchant_rule' && <p>저장된 가맹점 규칙의 추천입니다.</p>}
+        {suggested === 'confirmed_history' && <p>같은 가맹점의 최근 확정 내역을 바탕으로 추천했습니다.</p>}
+        {suggested === 'unclassified' && <p>추천 근거가 부족해 미분류로 표시합니다.</p>}
         <button type="submit" disabled={saving || !eligible.length || !options.categories.length}>
           {saving ? '저장 중' : row ? '수정 저장' : '대기에 추가'}
         </button>

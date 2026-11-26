@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isBudgetMonth } from '@/lib/monthly-budget'
+import { isBudgetAmount, isBudgetMonth } from '@/lib/monthly-budget'
 import { createClient } from '@/lib/supabase/server'
 import { isUuid } from '@/lib/supabase/pending-expenses'
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   if (!isBudgetMonth(month)) return reply({ error: 'INVALID_INPUT' }, 400)
   const { supabase, response } = await authorize()
   if (!supabase) return response
-  const { data, error } = await supabase.rpc('get_monthly_budget', { p_month: month + '-01' })
+  const { data, error } = await supabase.rpc('read_budget_workspace', { p_month: month + '-01' })
   return error ? reply({ error: 'MONTHLY_BUDGET_READ_FAILED' }, 500) : reply(data)
 }
 
@@ -28,23 +28,32 @@ export async function PUT(request: NextRequest) {
   let body: unknown
   try { body = await request.json() } catch { return reply({ error: 'INVALID_JSON' }, 400) }
   const input = body as Record<string, unknown> | null
-  if (!input || !isBudgetMonth(input.month)
-    || (input.category_id !== null && !isUuid(input.category_id))
-    || typeof input.expected_version !== 'number' || !Number.isInteger(input.expected_version)
-    || input.expected_version < 0 || input.expected_version > 2147483647
-    || (input.amount_minor === null ? input.expected_version === 0
-      : typeof input.amount_minor !== 'string' || !/^(?:0|[1-9]\d{0,18})$/.test(input.amount_minor)
-        || BigInt(input.amount_minor) > 9223372036854775807n)) {
-    return reply({ error: 'INVALID_INPUT' }, 400)
-  }
+  if (!input || !isBudgetMonth(input.month)) return reply({ error: 'INVALID_INPUT' }, 400)
+  const batch = Array.isArray(input.changes)
+  const raw: unknown[] = batch ? input.changes as unknown[] : [input]
+  if (!raw.length || raw.length > 512 || !raw.every(isChange)
+    || new Set(raw.map((change) => change.category_id?.toLowerCase() ?? null)).size !== raw.length) return reply({ error: 'INVALID_INPUT' }, 400)
   const { supabase, response } = await authorize()
   if (!supabase) return response
-  const { data, error } = await supabase.rpc('save_monthly_budget', {
-    p_month: input.month + '-01', p_category_id: input.category_id,
-    p_amount_minor: input.amount_minor, p_expected_version: input.expected_version,
-  })
+  const date = input.month + '-01'
+  const first = raw[0]
+  const { data, error } = batch
+    ? await supabase.rpc('save_budget_allocations', { p_month: date, p_changes: raw })
+    : await supabase.rpc('save_monthly_budget', {
+      p_month: date, p_category_id: first.category_id, p_amount_minor: first.amount_minor, p_expected_version: first.expected_version,
+    })
   if (error?.message === 'BUDGET_VERSION_CHANGED') return reply({ error: error.message }, 409)
   if (error?.message === 'BUDGET_CATEGORY_NOT_FOUND') return reply({ error: error.message }, 404)
   if (error?.code.startsWith('22')) return reply({ error: 'INVALID_INPUT' }, 400)
-  return error ? reply({ error: 'MONTHLY_BUDGET_WRITE_FAILED' }, 500) : reply(data)
+  return error ? reply({ error: 'MONTHLY_BUDGET_WRITE_FAILED' }, 500) : reply(batch ? { saved: true } : data)
+}
+
+type Change = { category_id: string | null; amount_minor: string | null; expected_version: number }
+
+function isChange(value: unknown): value is Change {
+  if (!value || typeof value !== 'object') return false
+  const { category_id, amount_minor, expected_version } = value as Record<string, unknown>
+  return (category_id === null || isUuid(category_id))
+    && typeof expected_version === 'number' && Number.isInteger(expected_version) && expected_version >= 0 && expected_version < 2147483647
+    && (amount_minor === null ? expected_version > 0 : isBudgetAmount(amount_minor))
 }

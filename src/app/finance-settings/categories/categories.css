@@ -1,0 +1,35 @@
+.settings-window-trigger {
+  min-height: 32px; padding: 4px 10px; background: var(--surface); color: var(--brand-hover);
+  border: 1px solid var(--border); border-radius: 7px; font-size: 13px; font-weight: 600;
+}
+.settings-window-trigger:hover { background: var(--accent-light); }
+.finance-settings-dialog {
+  box-sizing: border-box;
+  width: min(1080px, calc(100vw - 40px)); max-height: calc(100dvh - 40px);
+  padding: 0; border: 1px solid var(--border); border-radius: 14px;
+  color: var(--text-primary); background: var(--page-bg);
+  font-family: "Pretendard Variable", Pretendard, "Malgun Gothic", system-ui, sans-serif;
+  --green: var(--brand-primary); --muted: var(--text-secondary); --line: var(--border);
+}
+.finance-settings-dialog[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.finance-settings-dialog::backdrop { background: #28193454; }
+.settings-window-heading, .settings-window-section { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.settings-window-heading { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.settings-window-content { padding: 16px 24px 24px; overflow: auto; }
+.settings-window-section a { font-size: 13px; }
+.finance-settings-dialog .outline { color: var(--brand-hover); border-color: var(--border); }
+.category-catalog-screen .panel { border-radius: 12px; }
+.category-catalog-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+.category-catalog-toolbar .review-filters { margin: 0; }
+.category-catalog-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr); gap: 16px; align-items: start; }
+.category-catalog-grid > :only-child { grid-column: 1 / -1; }
+.category-catalog-notice { min-height: 24px; margin-block: 10px; color: var(--text-secondary); }
+.category-group { border-top: 1px solid var(--border); }
+.category-group > summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
+.category-group > summary small { margin-inline-start: 12px; font-weight: 400; }
+.category-group .summary-list { margin: 0; }
+.category-group .summary-list li { padding-inline-start: 14px; }
+.category-add-sub { margin: 8px 0 12px 14px; }
+.category-usage { display: grid; justify-items: start; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+.category-usage p { font-size: 14px; color: var(--text-secondary); }
+@media (max-width: 760px) { .category-catalog-grid { grid-template-columns: minmax(0, 1fr); } }

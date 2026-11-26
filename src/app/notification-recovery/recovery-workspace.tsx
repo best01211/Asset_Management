@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { amount, demoRecoveryEvents, readDemoFinance, storageKey } from '@/lib/local-finance'
+import CategoryPicker from '../category-picker'
 import { recoveryPageSize } from '@/lib/notification-recovery'
 import type { RecoveryAccount, RecoveryCategory, RecoveryCursor, RecoveryEvent, RecoveryPage } from '@/lib/notification-recovery'
 
@@ -210,10 +211,7 @@ export default function RecoveryWorkspace({ connected, initialAccounts, initialC
               <option value="">계좌 선택</option>
               {eligibleAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
             </select></label>
-            <label>카테고리<select name="category" required disabled={saving} defaultValue="">
-              <option value="">카테고리 선택</option>
-              {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-            </select></label>
+            <CategoryPicker name="category" items={categories} required disabled={saving} />
           </div>
           {(!accounts.length || !categories.length) && <p>복구하려면 결제 계좌와 카테고리가 필요합니다.</p>}
           {method && !eligibleAccounts.length && <p>이 결제 수단에 연결할 수 있는 계좌가 없습니다.</p>}

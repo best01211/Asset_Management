@@ -1,4 +1,5 @@
 import type { RecoveryEvent } from './notification-recovery'
+import type { Annotation } from './transaction-history'
 
 export type AccountKind = 'asset' | 'credit'
 export type Account = { id: string; name: string; kind: AccountKind; opening: number; openedOn?: string }
@@ -20,6 +21,7 @@ export type Finance = {
   recoveryEvents?: RecoveryEvent[]
   recurring?: RecurringPayment[]
   ledgerStartsOn?: string
+  annotations?: Record<string, Annotation>
 }
 
 export const storageKey = 'asset-management:demo:v1'
@@ -100,7 +102,7 @@ export function readDemoFinance(storage: Pick<Storage, 'getItem'>): Finance {
     accounts: original.accounts.map((account) => account.openedOn || sampleAccountIds.has(account.id)
       ? account : { ...account, openedOn: date }),
     ledgerStartsOn: original.ledgerStartsOn ?? (lastLegacyMonth ? atDate(lastLegacyMonth, -1, 1) : date.slice(0, 7) + '-01'),
-    recurring: recurring?.length ? recurring.map((item) => ({
+    recurring: recurring && (recurring.length > 0 || original.recurring?.length === 0) ? recurring.map((item) => ({
       ...item, name: item.name ?? defaultPayments.find((entry) => entry.id === item.id)?.name ?? '정기 결제',
     })) : defaultPayments,
   }

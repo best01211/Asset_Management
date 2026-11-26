@@ -24,7 +24,7 @@ export default function FinanceSettings() {
     return () => controller.abort()
   }, [revision])
 
-  async function save(event: FormEvent<HTMLFormElement>, type: 'account' | 'category') {
+  async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (saving) return
     const form = event.currentTarget
@@ -34,12 +34,12 @@ export default function FinanceSettings() {
     try {
       const response = await fetch('/api/finance-settings', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, name: fields.get('name'), kind: fields.get('kind') }),
+        body: JSON.stringify({ type: 'account', name: fields.get('name'), kind: fields.get('kind') }),
       })
       if (response.status === 400) setNotice('입력한 이름과 계좌 유형을 확인해 주세요.')
       else if (!response.ok) setNotice('저장하지 못했습니다. 같은 이름으로 다시 시도할 수 있습니다.')
       else {
-        setNotice(type === 'account' ? '계좌 설정을 저장했습니다.' : '카테고리 설정을 저장했습니다.')
+        setNotice('계좌 설정을 저장했습니다.')
         form.reset()
         setError('')
         setRevision((value) => value + 1)
@@ -60,7 +60,7 @@ export default function FinanceSettings() {
           {data.accounts.map((account) => <li key={account.id}><strong>{account.name}</strong>
             <span>{account.kind === 'asset' ? '자산' : '카드 부채'}</span></li>)}
         </ul> : <p className="recovery-message">등록된 결제 계좌가 없습니다.</p>}
-        <form onSubmit={(event) => save(event, 'account')}>
+        <form onSubmit={save}>
           <div className="fields">
             <label>계좌 이름<input name="name" maxLength={100} required disabled={saving} /></label>
             <label>계좌 유형<select name="kind" disabled={saving}><option value="asset">원화 자산</option>
@@ -70,14 +70,8 @@ export default function FinanceSettings() {
         </form>
       </section>
       <section className="panel" aria-labelledby="settings-categories">
-        <h2 id="settings-categories">비용 카테고리</h2>
-        {data.categories.length ? <ul className="summary-list">
-          {data.categories.map((category) => <li key={category.id}><strong>{category.name}</strong></li>)}
-        </ul> : <p className="recovery-message">등록된 비용 카테고리가 없습니다.</p>}
-        <form onSubmit={(event) => save(event, 'category')}>
-          <label>카테고리 이름<input name="name" maxLength={80} required disabled={saving} /></label>
-          <button type="submit" disabled={saving}>카테고리 추가</button>
-        </form>
+        <h2 id="settings-categories">카테고리·태그</h2>
+        <p className="recovery-message">사용 중인 지출 소분류 {data.categories.length}개</p>
       </section>
     </div>
     <p role="status" className="recovery-message">{notice}</p>

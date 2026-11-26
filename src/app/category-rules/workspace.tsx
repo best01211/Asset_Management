@@ -1,10 +1,13 @@
 'use client'
 
+import CategoryPicker from '../category-picker'
+import type { CategoryOption } from '@/lib/category-catalog'
+
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 
 type Rule = { id: string; merchant: string; category_id: string }
-type Rules = { rules: Rule[]; categories: { id: string; name: string }[] }
+type Rules = { rules: Rule[]; categories: CategoryOption[] }
 
 export default function CategoryRules() {
   const [data, setData] = useState<Rules | null>(null)
@@ -77,10 +80,7 @@ export default function CategoryRules() {
         <div className="fields">
           <label>가맹점 이름<input name="merchant" defaultValue={editing?.merchant ?? ''} readOnly={Boolean(editing)}
             required maxLength={200} disabled={saving} /></label>
-          <label>카테고리<select name="category" defaultValue={editing?.category_id ?? ''} required disabled={saving}>
-            <option value="">카테고리 선택</option>
-            {data.categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-          </select></label>
+          <CategoryPicker name="category" defaultValue={editing?.category_id} items={data.categories} required disabled={saving} />
         </div>
         <div className="row-actions"><button type="submit" disabled={saving || !data.categories.length}>규칙 저장</button>
           {editing && <button type="button" className="outline" disabled={saving} onClick={() => setEditing(null)}>취소</button>}

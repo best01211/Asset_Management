@@ -14,11 +14,14 @@ export async function GET(request: NextRequest) {
   const before = params.get('before_occurred_at')
   const beforeId = params.get('before_id')
   const pageSize = params.get('limit') ?? '25'
+  const id = params.get('id')
+  const search = params.get('q')?.trim() ?? ''
 
   if (!reviewStatuses.some((value) => value === status)
     || (before === null) !== (beforeId === null)
     || (before !== null && (!timestamp.test(before) || !Number.isFinite(Date.parse(before))))
     || (beforeId !== null && !uuid.test(beforeId))
+    || (id !== null && !isUuid(id)) || search.length > 200
     || !/^(?:[1-9]\d?|100)$/.test(pageSize)) {
     return NextResponse.json({ error: 'INVALID_INPUT' }, { status: 400, headers })
   }
@@ -28,14 +31,23 @@ export async function GET(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401, headers })
 
+  if (params.get('count') === 'review') {
+    const { count, error } = await supabase.from('pending_transactions').select('id', { head: true, count: 'exact' })
+      .eq('user_id', user.id).in('status', ['pending_review', 'duplicate_suspected'])
+    return error ? NextResponse.json({ error: 'TRANSACTION_COUNT_FAILED' }, { status: 500, headers })
+      : NextResponse.json({ count }, { headers })
+  }
+
   const limit = Number(pageSize)
   let query = supabase.from('pending_transactions').select(
     'id,merchant,amount_minor::text,currency,occurred_at,payment_method,payment_account_id,category_id,status,version,confirmed_transaction_id,' +
     'account:financial_accounts!pending_transactions_user_id_payment_account_id_fkey(name),' +
     'category:categories!pending_transactions_user_id_category_id_fkey(name),' +
     'allocations:pending_purchase_splits!pending_purchase_splits_user_id_pending_id_fkey(category_id)',
-  ).eq('user_id', user.id).eq('status', status)
+  ).eq('user_id', user.id)
     .order('occurred_at', { ascending: false }).order('id', { ascending: false }).limit(limit + 1)
+  query = id ? query.eq('id', id) : query.eq('status', status)
+  if (search) query = query.ilike('merchant', '%' + search.replace(/[\\%_*]/g, '\\$&') + '%')
 
   if (before !== null && beforeId !== null) {
     query = query.or('occurred_at.lt."' + before + '",and(occurred_at.eq."' + before + '",id.lt.' + beforeId + ')')

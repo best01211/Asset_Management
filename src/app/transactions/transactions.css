@@ -1,0 +1,142 @@
+.transactions-shell {
+  font-family: "Pretendard Variable", Pretendard, "Malgun Gothic", system-ui, sans-serif;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.transactions-shell.shell { grid-template-columns: 224px minmax(0, 1fr); }
+.transactions-shell .sidebar { padding: 24px 16px; gap: 32px; }
+.transactions-shell .sidebar nav a, .transactions-shell .demo-nav-disabled { min-height: 40px; border-radius: 8px; }
+.transactions-shell > .content { width: 100%; min-width: 0; max-width: 1440px; padding: 32px 32px 100px; }
+.transactions-shell h1 { font-size: 30px; line-height: 1.3; font-weight: 700; letter-spacing: -.025em; }
+.transactions-shell h2 { font-size: 20px; font-weight: 600; }
+.transactions-shell h3 { font-size: 15px; font-weight: 600; }
+.transactions-shell small { font-size: 12px; }
+.transactions-shell .panel { border-radius: 12px; border-color: var(--border); box-shadow: none; }
+.transactions-shell .outline { color: var(--brand-hover); background: var(--surface); }
+.transactions-shell button:not(:disabled):hover, .transactions-shell .button:hover { filter: brightness(.96); }
+.transactions-shell input[type=checkbox] { width: 16px; height: 16px; margin: 0; }
+.transactions-shell input:not([type=checkbox]), .transactions-shell select, .transactions-shell textarea {
+  border: 1px solid var(--border); border-radius: 7px; background: var(--surface);
+}
+.transactions-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+.transactions-heading p { color: var(--text-secondary); font-size: 13px; }
+.transactions-heading-actions { display: flex; align-items: center; gap: 12px; }
+.transaction-summary { padding: 0 0 18px; }
+.transaction-summary-title { display: flex; align-items: baseline; gap: 12px; }
+.transaction-summary-title time, .transaction-summary p { color: var(--text-secondary); font-size: 13px; }
+.transaction-summary dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 12px 0 8px; }
+.transaction-summary dl > div { padding-inline: 18px; border-inline-start: 1px solid var(--border); min-width: 0; }
+.transaction-summary dl > div:first-child { padding-inline-start: 0; border: 0; }
+.transaction-summary dt { color: var(--text-secondary); }
+.transaction-summary dd { margin: 1px 0 0; font-size: 26px; font-weight: 600; overflow-wrap: anywhere; }
+.transaction-tabs {
+  display: flex; flex-wrap: wrap; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+}
+.transaction-tabs a {
+  display: inline-flex; min-height: 46px; align-items: center; gap: 8px;
+  padding: 0 2px; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  color: var(--text-secondary); font-weight: 600; text-decoration: none;
+}
+.transaction-tabs a[aria-current] { color: var(--brand-hover); border-color: var(--brand-primary); }
+.queue-badge { border-radius: 999px; padding: 1px 8px; background: var(--accent-light); color: var(--brand-hover); font-size: 12px; }
+.transaction-toolbar, .transaction-extra, .review-search { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 12px; }
+.transaction-toolbar label, .transaction-extra label, .review-search label { font-weight: 500; }
+.transaction-search { flex: 1 1 200px; }
+.transaction-toolbar button, .transaction-extra button, .review-search button { min-height: 39px; }
+.transaction-extra { margin-top: 0; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-muted); }
+.transaction-extra > p { flex-basis: 100%; font-size: 13px; color: var(--negative); }
+.transaction-extra input { max-width: 144px; }
+.transaction-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.transaction-chips button { background: var(--accent-light); border-color: transparent; border-radius: 999px; white-space: normal; text-align: start; gap: 6px; }
+.history-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+.history-grid-with-detail { grid-template-columns: minmax(0, 1.95fr) minmax(245px, 1fr); }
+.transactions-shell .connected-review { grid-template-columns: minmax(0, 1.95fr) minmax(245px, 1fr); gap: 16px; }
+.transactions-shell .connected-review .panel { padding: 16px; }
+.transaction-list.panel { padding: 0; overflow: hidden; }
+.transaction-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.transaction-list > .transaction-list-heading { padding: 16px 18px 12px; }
+.transaction-list-period { color: var(--text-secondary); font-size: 13px; }
+.transaction-list table { white-space: normal; }
+.transaction-list th, .transaction-list td { padding: 7px 8px; }
+.transaction-list thead { color: var(--text-secondary); background: var(--surface-muted); }
+.transaction-list thead th { font-size: 12px; font-weight: 600; white-space: nowrap; }
+.transaction-list tr > :first-child { padding-inline-start: 12px; }
+.transaction-list tr > :last-child { padding-inline-end: 12px; }
+.transaction-list tbody tr { height: 62px; }
+.transaction-list tbody tr:last-child > * { border-bottom: 0; }
+.transactions-shell tbody tr[data-selected=true] { background: var(--accent-light); }
+.transaction-list td time { white-space: nowrap; }
+.transaction-list td small, .transaction-list th small, .transaction-fields small, .transaction-detail-sections small { display: block; color: var(--text-secondary); }
+.transaction-list td small { white-space: nowrap; }
+.transaction-amount { white-space: nowrap; font-weight: 600; }
+.transaction-amount[data-income=true] { color: var(--positive); }
+.transaction-name, .transaction-row-link {
+  background: transparent; color: var(--text-primary); padding: 0; white-space: normal; text-align: start; border: 0;
+}
+.transaction-name { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.transaction-name:hover { text-decoration: underline; }
+.transaction-row-tags {
+  display: flex; flex-wrap: wrap; gap: 3px 4px; margin: 2px 0 0; padding: 0; list-style: none;
+}
+.transaction-row-tags li {
+  max-inline-size: 14ch; padding: 0 6px; border-radius: 999px;
+  color: var(--text-secondary); background: var(--surface-muted);
+  font-size: 11px; line-height: 16px; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.transaction-row-link { color: var(--brand-hover); font-size: 19px; min-width: 25px; min-height: 34px; }
+.transaction-empty { padding: 24px 18px; color: var(--text-secondary); }
+.transaction-empty button { margin-top: 10px; }
+.transaction-pagination { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 12px; border-top: 1px solid var(--border); }
+.transaction-pagination span { text-align: center; }
+.transaction-pagination small { display: block; color: var(--text-secondary); }
+.transaction-detail { min-width: 0; position: sticky; top: 16px; max-height: calc(100dvh - 96px); overflow: auto; }
+.transaction-detail-value { display: grid; gap: 3px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.transaction-detail-value span { color: var(--text-secondary); font-size: 13px; }
+.transaction-detail-value h3 { overflow-wrap: anywhere; }
+.transaction-detail-value strong { font-size: 27px; font-weight: 600; overflow-wrap: anywhere; }
+.transaction-fields { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 12px; }
+.transaction-fields dt { color: var(--text-secondary); }
+.transaction-fields dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.transaction-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.transaction-annotation { justify-items: stretch; }
+.transaction-annotation textarea { min-height: 95px; padding: 8px; resize: vertical; font: inherit; }
+.transaction-tag-options { flex-wrap: wrap; }
+.transaction-tag-options button[aria-pressed=true] { background: var(--accent-light); }
+.transaction-detail-sections { margin-top: 14px; border-top: 1px solid var(--border); }
+.transaction-detail-sections details { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.transaction-detail-sections summary { cursor: pointer; font-weight: 600; }
+.transaction-detail-sections p, .transaction-detail-sections ul { margin: 6px 0 0; color: var(--text-secondary); }
+.transaction-detail-sections ul { padding-inline-start: 16px; }
+.transaction-review-links { display: flex; gap: 16px; margin: -4px 0 14px; }
+.review-search { justify-items: initial; margin-top: 8px; }
+.review-search label { flex: 1 1 160px; }
+
+@media (min-width: 1151px) {
+  .transaction-list tbody tr { height: clamp(48px, calc((100dvh - 580px) / 10), 62px); }
+  .transaction-list tbody :is(th, td) { padding-block: 5px; }
+}
+
+@media (max-width: 1150px) {
+  .transactions-shell > .content { padding-inline: 20px; }
+  .transactions-shell.shell { grid-template-columns: 180px minmax(0, 1fr); }
+  .history-grid-with-detail, .transactions-shell .connected-review { grid-template-columns: minmax(0, 1fr); }
+  .transaction-detail {
+    position: fixed; inset: auto 24px 92px auto; width: min(460px, calc(100vw - 48px));
+    max-height: calc(100dvh - 112px); z-index: 15; box-shadow: 0 8px 24px #28193426;
+  }
+}
+@media (max-width: 760px) {
+  .transactions-shell .sidebar { padding: 8px 16px; gap: 5px; }
+  .transactions-shell .sidebar nav a, .transactions-shell .demo-nav-disabled { min-height: 36px; }
+  .transactions-shell > .content { padding: 20px 16px 96px; }
+  .transactions-shell h1 { font-size: 26px; }
+  .transaction-summary dl { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 10px; }
+  .transaction-summary dl > div:nth-child(odd) { border: 0; padding-inline-start: 0; }
+  .transaction-summary dd { font-size: 22px; }
+  .transaction-list .transaction-secondary { display: none; }
+  .transaction-list td time { white-space: normal; }
+  .transaction-list th, .transaction-list td { padding-inline: 4px; }
+  .transaction-list tr > :first-child, .transaction-list tr > :last-child { padding-inline: 6px; }
+  .transaction-detail { inset-inline: 12px; width: auto; inset-block-end: 80px; }
+}

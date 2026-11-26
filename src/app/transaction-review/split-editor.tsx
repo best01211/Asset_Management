@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { formatWon } from '@/lib/format-finance'
 import type { ReviewTransaction } from '@/lib/transaction-review'
+import type { CategoryOption } from '@/lib/category-catalog'
+import CategoryPicker from '../category-picker'
 
 type Allocation = { category_id: string; amount_minor: string }
 type AllocationRow = Allocation & { key: string }
-type Category = { id: string; name: string }
+type Category = CategoryOption
 const integer = /^[1-9]\d{0,18}$/
 
 export default function SplitEditor({ transaction, saving, onSavingChange, onCancel, onFinished }: {
@@ -79,11 +81,8 @@ export default function SplitEditor({ transaction, saving, onSavingChange, onCan
     {!categories && !notice && <p role="status">분할을 불러오는 중입니다.</p>}
     {categories && <form onSubmit={submit}>
       {rows.map((row, index) => <div className="fields" key={row.key}>
-        <label>카테고리 {index + 1}<select required value={row.category_id} disabled={saving}
-          onChange={(event) => update(row.key, { category_id: event.target.value })}>
-          <option value="">카테고리 선택</option>
-          {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-        </select></label>
+        <CategoryPicker label={'카테고리 ' + (index + 1)} required value={row.category_id} items={categories} disabled={saving}
+          onChange={(next) => update(row.key, { category_id: next })} />
         <label>배분 금액 {index + 1} (원)<input inputMode="numeric" pattern="[1-9][0-9]{0,18}" value={row.amount_minor}
           required disabled={saving} onChange={(event) => update(row.key, { amount_minor: event.target.value })} /></label>
         <button type="button" className="outline" disabled={saving} onClick={() => setRows((items) => items.filter((item) => item.key !== row.key))}>
@@ -92,7 +91,7 @@ export default function SplitEditor({ transaction, saving, onSavingChange, onCan
       </div>)}
       <p>서로 다른 카테고리 2개 이상에 나누고 합계를 구매 금액과 맞추세요.</p>
       <div className="row-actions">
-        <button type="button" className="outline" disabled={saving || rows.length >= Math.min(30, categories.length)}
+        <button type="button" className="outline" disabled={saving || rows.length >= Math.min(30, categories.filter((item) => item.is_active !== false).length)}
           onClick={() => setRows((items) => [...items, { key: crypto.randomUUID(), category_id: '', amount_minor: '' }])}>
           분할 항목 추가
         </button>

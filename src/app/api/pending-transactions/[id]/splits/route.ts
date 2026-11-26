@@ -36,7 +36,7 @@ export async function GET(_request: NextRequest, context: Context) {
   ])
   if (split.error?.message === 'PENDING_NOT_FOUND') return reply({ error: split.error.message }, 404)
   if (split.error || !options) return reply({ error: 'SPLIT_READ_FAILED' }, 500)
-  return reply({ allocations: split.data, categories: options.categories })
+  return reply({ allocations: split.data, categories: [...options.categories, ...(options.archivedCategories ?? [])] })
 }
 
 export async function PUT(request: NextRequest, context: Context) {

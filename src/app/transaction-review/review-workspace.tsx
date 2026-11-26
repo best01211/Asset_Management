@@ -7,6 +7,7 @@ import { formatSeoulTime, formatWon } from '@/lib/format-finance'
 import PendingEditForm from './pending-edit-form'
 import DuplicateReview from './duplicate-review'
 import SplitEditor from './split-editor'
+import { canLeaveDraft } from '../transactions/draft'
 
 const labels: Record<ReviewStatus, string> = {
   pending_review: '검토 대기',
@@ -19,8 +20,10 @@ function formatAmount(row: ReviewTransaction) {
   return row.currency === 'KRW' ? formatWon(row.amount_minor) : row.amount_minor + ' (' + row.currency + ')'
 }
 
-async function fetchPage(status: ReviewStatus, cursor: ReviewCursor | null, signal?: AbortSignal): Promise<ReviewPage> {
+async function fetchPage(status: ReviewStatus, cursor: ReviewCursor | null, search = '', signal?: AbortSignal, id?: string): Promise<ReviewPage> {
   const query = new URLSearchParams({ status, ...cursor })
+  if (search) query.set('q', search)
+  if (id) query.set('id', id)
   const response = await fetch('/api/pending-transactions?' + query, { signal, cache: 'no-store' })
   if (response.status === 401) throw new Error('연결된 거래를 보려면 인증된 사용자 세션이 필요합니다.')
   if (response.status === 503) throw new Error('Supabase 연결이 설정되지 않았습니다.')
@@ -43,7 +46,9 @@ function batchFailure(status: number) {
   return '승인 결과를 확인하지 못함'
 }
 
-export default function ReviewWorkspace() {
+export default function ReviewWorkspace({ initialId, openOnly = false, onChanged }: {
+  initialId?: string; openOnly?: boolean; onChanged?: () => void
+}) {
   const [status, setStatus] = useState<ReviewStatus>('pending_review')
   const [rows, setRows] = useState<ReviewTransaction[]>([])
   const [cursor, setCursor] = useState<ReviewCursor | null>(null)
@@ -60,6 +65,7 @@ export default function ReviewWorkspace() {
   const [revision, setRevision] = useState(0)
   const [listError, setListError] = useState('')
   const [notice, setNotice] = useState('')
+  const [search, setSearch] = useState('')
   const requestKeys = useRef(new Map<string, string>())
   const busy = approving || editingBusy
   const canReview = status === 'pending_review' || status === 'duplicate_suspected'
@@ -67,7 +73,7 @@ export default function ReviewWorkspace() {
 
   useEffect(() => {
     const controller = new AbortController()
-    fetchPage(status, null, controller.signal).then((page) => {
+    fetchPage(status, null, search, controller.signal).then((page) => {
       setRows(page.transactions)
       setCursor(page.next_cursor)
     }).catch((error: Error) => {
@@ -76,7 +82,31 @@ export default function ReviewWorkspace() {
       if (!controller.signal.aborted) setLoading(false)
     })
     return () => controller.abort()
-  }, [status, revision])
+  }, [status, revision, search])
+
+  useEffect(() => {
+    if (!initialId) return
+    const controller = new AbortController()
+    fetchPage('pending_review', null, '', controller.signal, initialId).then((page) => {
+      if (controller.signal.aborted) return
+      const row = page.transactions[0]
+      if (!row || (row.status !== 'pending_review' && row.status !== 'duplicate_suspected')) {
+        setNotice('해당 거래의 검토가 이미 끝났거나 거래를 찾을 수 없습니다.')
+        return
+      }
+      if (row.status !== 'pending_review') {
+        setStatus(row.status)
+        setRows([])
+        setCursor(null)
+        setLoading(true)
+      }
+      setSelected(row)
+      setComparing(row.status === 'duplicate_suspected')
+    }).catch(() => {
+      if (!controller.signal.aborted) setNotice('지정한 대기 거래를 불러오지 못했습니다.')
+    })
+    return () => controller.abort()
+  }, [initialId])
 
   function resetList() {
     setLoading(true)
@@ -94,13 +124,14 @@ export default function ReviewWorkspace() {
   function refresh() {
     resetList()
     setRevision((value) => value + 1)
+    onChanged?.()
   }
 
   async function loadMore(next: ReviewCursor) {
     setLoading(true)
     setListError('')
     try {
-      const page = await fetchPage(status, next)
+      const page = await fetchPage(status, next, search)
       setRows((current) => [...current, ...page.transactions.filter((row) => !current.some((item) => item.id === row.id))])
       setCursor(page.next_cursor)
     } catch (error) {
@@ -218,6 +249,7 @@ export default function ReviewWorkspace() {
           <h2 id="review-list-title">거래 목록</h2>
           <div className="row-actions">
             {status === 'pending_review' && !listError && <button type="button" disabled={loading || busy} onClick={() => {
+              if (!canLeaveDraft()) return
               setSelected(null)
               setEditing(true)
               setComparing(false)
@@ -227,6 +259,7 @@ export default function ReviewWorkspace() {
               setNotice('')
             }}>구매 입력</button>}
             <button type="button" className="outline" disabled={loading || busy} onClick={() => {
+            if (!canLeaveDraft()) return
             setNotice('')
             setBatchResults([])
             refresh()
@@ -234,10 +267,10 @@ export default function ReviewWorkspace() {
           </div>
         </div>
         <div className="review-filters" role="group" aria-label="거래 상태">
-          {reviewStatuses.map((value) => (
+          {reviewStatuses.filter((value) => !openOnly || value !== 'confirmed').map((value) => (
             <button key={value} type="button" className={status === value ? '' : 'outline'}
               aria-pressed={status === value} disabled={busy || loading} onClick={() => {
-                if (value === status) return
+                if (value === status || !canLeaveDraft()) return
                 setNotice('')
                 setBatchResults([])
                 resetList()
@@ -245,8 +278,19 @@ export default function ReviewWorkspace() {
               }}>{labels[value]}</button>
           ))}
         </div>
+        {openOnly && <form className="review-search" onSubmit={(event) => {
+          event.preventDefault()
+          const value = String(new FormData(event.currentTarget).get('q') ?? '').trim()
+          if (value === search || !canLeaveDraft()) return
+          resetList()
+          setSearch(value)
+        }}>
+          <label>가맹점 검색<input name="q" type="search" maxLength={200} disabled={busy} /></label>
+          <button type="submit" className="outline" disabled={busy}>검색</button>
+        </form>}
         {status === 'pending_review' && rows.length > 0 && <div className="review-filters">
           <button type="button" className="outline" disabled={loading || busy || !marked.length} onClick={() => {
+            if (!canLeaveDraft()) return
             setSelected(null)
             setEditing(false)
             setComparing(false)
@@ -267,7 +311,7 @@ export default function ReviewWorkspace() {
                 <th scope="col">가맹점</th><th scope="col">거래 시각</th><th scope="col">계좌 · 분류</th>
                 <th scope="col" className="numeric">금액</th>{(canReview || status === 'confirmed') && <th scope="col">작업</th>}</tr></thead>
               <tbody>{rows.map((row) => (
-                <tr key={row.id}>
+                <tr key={row.id} data-selected={selected?.id === row.id}>
                   {status === 'pending_review' && <td><input type="checkbox" aria-label={row.merchant + ' 선택'}
                     disabled={busy || loading || (marked.length === approvalBatchLimit && !markedIds.includes(row.id))}
                     checked={markedIds.includes(row.id)} onChange={(event) => {
@@ -282,6 +326,7 @@ export default function ReviewWorkspace() {
                   {canReview && <td><button type="button" className="outline"
                     aria-label={row.merchant + ' 검토'} disabled={busy || loading}
                     onClick={() => {
+                      if (!canLeaveDraft()) return
                       setSelected(row)
                       setEditing(false)
                       setComparing(status === 'duplicate_suspected')
@@ -316,7 +361,7 @@ export default function ReviewWorkspace() {
           onCancel={() => { setComparing(false); if (selected.status !== 'pending_review') setSelected(null) }}
           onFinished={(message) => { setNotice(message); refresh() }} />
           : editing ? <PendingEditForm key={selected ? selected.id + ':' + selected.version : 'new'} row={selected ?? undefined}
-          saving={editingBusy} onSavingChange={setEditingBusy} onCancel={() => setEditing(false)}
+          saving={editingBusy} onSavingChange={setEditingBusy} onCancel={() => { if (canLeaveDraft()) setEditing(false) }}
           onFinished={(message) => { setNotice(message); refresh() }} />
           : selected ? (
           <>

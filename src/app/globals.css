@@ -6,6 +6,23 @@
   --green: #145949;
   --muted: #52635f;
   --line: #d9e2dd;
+  --sidebar-bg: #281934;
+  --sidebar-active: #483057;
+  --brand-primary: #7544B5;
+  --brand-hover: #63369F;
+  --budget-hero: #54296F;
+  --budget-hero-deep: #48235F;
+  --accent-light: #EDE7F6;
+  --page-bg: #FAF9F7;
+  --surface: #FFFFFF;
+  --surface-muted: #F5F2F7;
+  --border: #E5E2EA;
+  --text-primary: #21182C;
+  --text-secondary: #746A7D;
+  --text-muted: #948B9C;
+  --positive: #247A5A;
+  --negative: #C65359;
+  --warning: #A46A27;
 }
 
 * { box-sizing: border-box; }
@@ -47,6 +64,8 @@ input:not([type=checkbox]), select {
 }
 input[type=checkbox], progress { accent-color: var(--green); }
 label { display: grid; gap: .25rem; font-size: .875rem; font-weight: 700; min-width: 0; }
+.category-picker { display: grid; gap: .25rem; min-width: 0; }
+.fields > .category-picker { flex: 1 1 12rem; }
 .shell { min-height: 100vh; display: grid; grid-template-columns: 13rem minmax(0, 1fr); }
 .shell.compact { grid-template-columns: 5rem minmax(0, 1fr); }
 .sidebar {
@@ -140,10 +159,85 @@ form .fields { width: 100%; }
 .budget-form { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem; }
 td .budget-form { margin: 0; }
 
+.chatbot-launcher {
+  position: fixed;
+  inset-inline-end: max(24px, env(safe-area-inset-right));
+  inset-block-end: max(24px, env(safe-area-inset-bottom));
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 1px solid #ffffff38;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: var(--surface);
+  box-shadow: 0 3px 10px #28193430;
+  transition: background-color 150ms ease;
+}
+.chatbot-launcher:hover { background: var(--brand-hover); }
+.chatbot-launcher:focus-visible { outline-color: var(--brand-primary); }
+
+.finance-assistant {
+  position: fixed;
+  inset: auto max(24px, env(safe-area-inset-right)) 92px auto;
+  margin: 0;
+  width: min(360px, calc(100% - 48px));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  color: var(--text-primary);
+  background: var(--surface);
+}
+.finance-assistant::backdrop { background: #28193426; }
+.finance-assistant-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.finance-assistant p { margin-block: 12px 16px; color: var(--text-secondary); font-size: 14px; }
+.finance-assistant .button { background: var(--brand-primary); gap: 8px; }
+
+.chatbot-logo {
+  position: relative;
+  display: block;
+  width: 25px;
+  height: 19px;
+  margin-top: 4px;
+  border: 2px solid currentColor;
+  border-radius: 8px 8px 8px 4px;
+}
+.chatbot-logo::before, .chatbot-logo::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: currentColor;
+}
+.chatbot-logo::before { bottom: 100%; width: 2px; height: 5px; }
+.chatbot-logo::after { bottom: calc(100% + 4px); width: 5px; height: 5px; border-radius: 50%; }
+.chatbot-logo span {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 3px;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--accent-light);
+  box-shadow: 8px 0 var(--accent-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chatbot-launcher { transition: none; }
+}
+
 @media (max-width: 1050px) {
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
+  .chatbot-launcher {
+    inset-inline-end: max(16px, env(safe-area-inset-right));
+    inset-block-end: max(16px, env(safe-area-inset-bottom));
+    width: 52px;
+    height: 52px;
+  }
   .shell, .shell.compact { display: block; }
   .sidebar { position: static; height: auto; gap: .5rem; padding: .5rem 1rem; }
   nav { display: flex; flex-wrap: wrap; gap: 0 .25rem; }

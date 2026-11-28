@@ -20,7 +20,7 @@ const sections = [
   { id: 'budgets', label: '예산', mark: '◔', href: '/demo/budgets' },
   { id: 'recurring', label: '정기 결제', mark: '↻', href: '/recurring-payments' },
   { id: 'accounts', label: '계좌·카드', mark: '▣', href: '/demo/accounts' },
-  { id: 'investments', label: '투자·외화', mark: '↗', href: null },
+  { id: 'investments', label: '투자·외화', mark: '↗', href: '/investments?mode=demo' },
   { id: 'reports', label: '결산·보고서', mark: '▤', href: '/ledger-summary' },
 ]
 

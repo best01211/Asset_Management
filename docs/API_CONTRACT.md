@@ -222,7 +222,9 @@ merchant,amount_minor,occurred_at,payment_method,payment_account_id,category_id
 
 ## 투자 거래·환전
 
-`GET /api/investments`는 사용자 증권 계좌를 나열한다. `account_id`를 보내면 보유 수량, 원화 이동평균 원가, 실현손익, 순배당, 통화별 순현금 이동을 조회한다. 통화별 순이동에는 거래·배당·환전만 포함된다.
+`GET /api/investments`는 사용자 증권 계좌를 나열한다. `account_id`를 보내면 보유 수량, 원화 이동평균 원가, 실현손익, 순배당, 통화별 순현금 이동을 조회한다. 투자 워크스페이스 마이그레이션 이후에는 입출금·계좌 이동과 거래 정정도 반영한다.
+
+`GET /api/investments/workspace`는 인증 사용자의 계좌, 유효 거래(취소 표시 포함), 자산별 마지막 시세를 반환한다. `asset=티커|통화`는 선택 종목의 시세 이력, `asset=analysis`는 기간 비교용 시세 이력을 포함한다. 같은 경로의 POST는 `account`, `event`, `quote`, `refresh`를 받는다. 거래의 `request`는 요청 UUID, `entry.id`는 원본 거래 UUID, `entry.version`은 마지막 조회 버전이다. 신규는 `create: true`, 정정은 다음 버전 추가, 취소는 `entry.cancelled: true`를 사용한다. 잔액·수량 부족은 422, 버전 충돌은 409다.
 
 - `POST /api/investments`의 `action: "account"`는 계좌 `name`을 받는다.
 - `action: "event"`는 `account_id`, `request_id`, `event`를 받는다. 이벤트에는 `kind`(`buy`, `sell`, `dividend`, `fx`), 시간대가 포함된 `occurred_at`, `currency`, `gross`, `fee`, `krw_per_unit`, `source`가 필요하다. 매수·매도는 `symbol`과 `quantity`, 배당은 `symbol`, 환전은 `target_currency`와 `target_amount`를 받는다. 수량과 금액, 환율은 소수 8자리 이하 문자열이다. 원화 환율은 1을 사용한다. 매수·매도는 계좌·종목·통화별 체결 순서대로 기록한다.
@@ -250,3 +252,5 @@ merchant,amount_minor,occurred_at,payment_method,payment_account_id,category_id
 3. 승인 재시도 및 동시 승인에서 분개 중복을 만들지 않는다.
 4. 잘못 기록한 확정 구매는 원본과 정정 사유를 보존하고 역분개로 처리한다.
 5. Supabase Service Role Key는 브라우저·Android 앱 번들에 포함하지 않는다.
+
+투자 화면의 공개 시세 조회는 계좌 식별자나 수량 없이 `POST /api/investments/market`에 `instruments`를 전달한다. 선택 필드 `through`를 YYYY-MM-DD 형식으로 보내면 해당 한국 날짜까지의 180일 범위에서 완료된 일봉을 조회한다. 응답은 `quotes`와 조회에 실패한 종목·통화 목록 `missing`을 포함한다.

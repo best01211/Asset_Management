@@ -1,0 +1,444 @@
+.iv-shell {
+  font-family:
+    Pretendard Variable,
+    Pretendard,
+    'Malgun Gothic',
+    sans-serif;
+  color: var(--text-primary);
+}
+.iv-page {
+  max-width: 1660px;
+  margin: auto;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding-bottom: 54px;
+}
+.iv-header,
+.iv-toolbar,
+.iv-panel-title,
+.iv-tools,
+.iv-actions,
+.iv-insight,
+.iv-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.iv-tools,
+.iv-actions {
+  justify-content: flex-start;
+  gap: 8px;
+}
+.iv-page h1,
+.iv-page h2,
+.iv-dialog h2 {
+  margin: 0;
+  letter-spacing: -0.045em;
+}
+.iv-page h1 {
+  font-size: clamp(28px, 3vw, 40px);
+}
+.iv-page h2,
+.iv-dialog h2 {
+  font-size: 21px;
+}
+.iv-page small,
+.iv-page dt,
+.iv-page header small {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.iv-page b,
+.iv-page strong,
+.iv-page dd,
+.iv-page td {
+  font-variant-numeric: tabular-nums;
+}
+.iv-summary {
+  display: grid;
+  grid-template-columns: 1.8fr 1.1fr 1fr 1fr;
+  align-items: center;
+  background: var(--surface);
+  border-block: 1px solid var(--border);
+  padding: 24px 16px;
+}
+.iv-summary > div {
+  padding: 0 20px;
+  display: grid;
+  gap: 3px;
+  border-left: 1px solid var(--border);
+}
+.iv-summary > div:first-child {
+  border: 0;
+}
+.iv-summary span,
+.iv-panel > small {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.iv-summary strong {
+  font-size: clamp(30px, 3vw, 48px);
+  letter-spacing: -0.06em;
+  color: var(--budget-hero);
+}
+.iv-summary b {
+  font-size: 18px;
+}
+.iv-tabs,
+.iv-segments {
+  display: flex;
+  gap: 6px;
+}
+.iv-tabs {
+  border-bottom: 1px solid var(--border);
+}
+.iv-tabs button,
+.iv-segments button,
+.iv-holdings button {
+  background: transparent;
+  color: var(--text-secondary);
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.iv-tabs button {
+  padding: 10px 16px;
+  font-size: 18px;
+  border-bottom: 3px solid transparent;
+}
+.iv-tabs button[aria-pressed='true'] {
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+.iv-segments {
+  padding: 4px;
+  background: var(--surface-muted);
+  border-radius: 8px;
+}
+.iv-segments button {
+  padding: 5px 12px;
+  border-radius: 5px;
+}
+.iv-segments button[aria-pressed='true'] {
+  background: var(--accent-light);
+  color: var(--budget-hero);
+}
+.iv-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.iv-panel,
+.iv-insight {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  overflow: auto;
+}
+.iv-panel-title,
+.iv-filters {
+  margin-bottom: 14px;
+}
+.iv-page input,
+.iv-page select,
+.iv-dialog input,
+.iv-dialog select {
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+.iv-page button,
+.iv-page .button,
+.iv-dialog button {
+  margin: 0;
+}
+.iv-filters input {
+  flex: 1;
+  min-width: 110px;
+}
+.iv-page table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+}
+.iv-page th,
+.iv-page td {
+  white-space: nowrap;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  padding: 11px 7px;
+}
+.iv-page td:first-child,
+.iv-page th:first-child {
+  text-align: left;
+}
+.iv-page table small {
+  display: block;
+}
+.iv-holdings tbody tr {
+  cursor: pointer;
+}
+.iv-holdings .selected {
+  background: var(--accent-light);
+}
+.iv-holdings button {
+  color: var(--text-primary);
+  padding: 0;
+  font-weight: 700;
+  text-align: left;
+  min-height: 26px;
+}
+.iv-page .pos {
+  color: var(--positive);
+}
+.iv-page .neg,
+.iv-error {
+  color: var(--negative);
+}
+.iv-valuation {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+.iv-metrics {
+  margin: 14px 0;
+}
+.iv-metrics div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.iv-metrics dd {
+  margin: 0;
+  text-align: right;
+}
+.iv-insight {
+  background: var(--surface-muted);
+  border: 0;
+}
+.iv-insight p,
+.iv-notice {
+  margin: 4px 0;
+  color: var(--text-secondary);
+}
+.iv-trend h2 {
+  margin: 0 0 12px;
+}
+.iv-trend-plot {
+  display: flex;
+  gap: 12px;
+}
+.iv-trend-plot > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+.iv-trend-plot svg {
+  flex: 1;
+  min-width: 0;
+  height: 112px;
+  color: #7544b5;
+  border-block: 1px solid var(--border);
+}
+.iv-trend-dates,
+.iv-trend dl > div {
+  display: flex;
+  justify-content: space-between;
+}
+.iv-trend-dates,
+.iv-trend-plot span,
+.iv-trend details {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.iv-trend details {
+  margin-top: 8px;
+}
+.iv-trend summary {
+  cursor: pointer;
+}
+.iv-trend dl {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.iv-dialog {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: min(570px, 94vw);
+  padding: 24px;
+  max-height: 85dvh;
+  overflow: auto;
+}
+.iv-dialog::backdrop {
+  background: #28193466;
+}
+.iv-dialog header {
+  margin-bottom: 16px;
+}
+.iv-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.iv-form label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.iv-form input,
+.iv-form select {
+  width: 100%;
+}
+.iv-total,
+.iv-actions,
+.iv-error {
+  grid-column: 1/-1;
+}
+.iv-total {
+  background: var(--surface-muted);
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+@media (max-width: 1100px) {
+  .iv-prices {
+    display: none;
+  }
+  .iv-summary > div {
+    padding: 0 8px;
+  }
+  .iv-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+  .iv-holdings td:nth-child(2),
+  .iv-holdings th:nth-child(2) {
+    display: none;
+  }
+  .iv-panel {
+    padding: 14px;
+  }
+}
+@media (max-width: 760px) {
+  .iv-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .iv-summary > div {
+    border: 0;
+  }
+  .iv-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .iv-detail {
+    display: none;
+  }
+  .iv-page {
+    gap: 12px;
+  }
+  .iv-panel {
+    padding: 12px;
+  }
+  .iv-header small {
+    display: block;
+  }
+  .iv-page th,
+  .iv-page td {
+    font-size: 13px;
+    padding: 8px 4px;
+  }
+  .iv-toolbar {
+    align-items: start;
+  }
+  .iv-dialog {
+    max-width: 100vw;
+  }
+  .iv-form {
+    gap: 8px;
+  }
+  .iv-dialog:has(.iv-valuation) {
+    margin: auto 0 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+  }
+}
+/* Grid item auto margins previously shrink-wrapped the main area to each tab's content. */
+.iv-shell > .content {
+  width: 100%;
+  min-width: 0;
+  max-width: 1660px;
+  box-sizing: border-box;
+}
+html:has(.iv-shell) {
+  scrollbar-gutter: stable;
+}
+.iv-allocation {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 32px);
+  flex-wrap: wrap;
+  margin-block: 20px 8px;
+}
+.iv-donut {
+  width: clamp(146px, 15vw, 212px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.iv-donut > div {
+  border-radius: 50%;
+  background: var(--surface);
+  width: 72%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.iv-donut b {
+  font-size: clamp(13px, 1.2vw, 19px);
+}
+.iv-allocation ul {
+  flex: 1;
+  min-width: min(185px, 100%);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.iv-allocation li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.iv-allocation li i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.iv-allocation li small {
+  display: block;
+}
+.iv-page .iv-brokers {
+  color: var(--budget-hero);
+  white-space: normal;
+}
+@media (max-width: 760px) {
+  .iv-allocation {
+    justify-content: center;
+  }
+}
